@@ -161,7 +161,9 @@ def buildtree(part: Data, scoref=entropy, beta=0):
     column_count = len(part[0]) - 1  # Attributes
     for col in range(0, column_count):
         # Generate list of different values in that column
-        column_values = {row[col] for row in part}
+        column_values = set()
+        for row in part:
+            column_values.add(row[col])
 
         for value in column_values:
             # Try division in that column and value
