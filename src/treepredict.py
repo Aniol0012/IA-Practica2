@@ -115,8 +115,15 @@ def divideset(part: Data, column: int, value) -> Tuple[Data, Data]:
         split_function = _split_numeric
     else:
         split_function = _split_categorical
-    #...
-    return (set1, set2)
+
+    set1, set2 = [], []
+
+    for row in part:  # For each row in the dataset
+        if split_function(row, column, value):  # If it matches the criteria
+            set1.append(row)  # Add it to the first set
+        else:
+            set2.append(row)  # Add it to the second set
+    return set1, set2
 
 
 class DecisionNode:
@@ -145,14 +152,37 @@ def buildtree(part: Data, scoref=entropy, beta=0):
         return DecisionNode()
 
     current_score = scoref(part)
-    
+
     # Set up some variables to track the best criteria
     best_gain = 0
     best_criteria = None
     best_sets = None
-    # ...
-    #else:
-    #    return DecisionNode(results=unique_counts(part))
+
+    column_count = len(part[0]) - 1  # Attributes
+    for col in range(0, column_count):
+        # Generate list of different values in that column
+        column_values = {row[col] for row in part}
+
+        for value in column_values:
+            # Try division in that column and value
+            (set1, set2) = divideset(part, col, value)
+
+            # Calculate the information gains
+            p = float(len(set1)) / len(part)
+            gain = current_score - p * scoref(set1) - (1 - p) * scoref(set2)
+            if gain > best_gain and len(set1) > 0 and len(set2) > 0:
+                best_gain = gain
+                best_criteria = (col, value)
+                best_sets = (set1, set2)
+
+    # Create subtrees or end recursion
+    if best_gain > beta:
+        true_branch = buildtree(best_sets[0], scoref, beta)
+        false_branch = buildtree(best_sets[1], scoref, beta)
+        return DecisionNode(col=best_criteria[0], value=best_criteria[1],
+                            tb=true_branch, fb=false_branch)
+    else:
+        return DecisionNode(results=unique_counts(part))
 
 
 def iterative_buildtree(part: Data, scoref=entropy, beta=0):
