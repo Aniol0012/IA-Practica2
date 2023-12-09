@@ -159,30 +159,31 @@ def buildtree(part: Data, scoref=entropy, beta=0):
     best_sets = None
 
     column_count = len(part[0]) - 1  # Attributes
-    for col in range(0, column_count):
-        # Generate list of different values in that column
+    for column in range(column_count):
         column_values = set()
         for row in part:
-            column_values.add(row[col])
+            column_values.add(row[column])
 
         for value in column_values:
-            # Try division in that column and value
-            (set1, set2) = divideset(part, col, value)
+            set1, set2 = divideset(part, column, value)
+            set1_len = len(set1)
+            set2_len = len(set2)
 
-            # Calculate the information gains
-            p = float(len(set1)) / len(part)
+            if set1_len == 0 or set2_len == 0:
+                continue
+
+            p = set1_len / len(part)
             gain = current_score - p * scoref(set1) - (1 - p) * scoref(set2)
-            if gain > best_gain and len(set1) > 0 and len(set2) > 0:
+            if gain > best_gain:
                 best_gain = gain
-                best_criteria = (col, value)
+                best_criteria = (column, value)
                 best_sets = (set1, set2)
 
-    # Create subtrees or end recursion
+    # Check if best gain is significant enough
     if best_gain > beta:
-        true_branch = buildtree(best_sets[0], scoref, beta)
-        false_branch = buildtree(best_sets[1], scoref, beta)
-        return DecisionNode(col=best_criteria[0], value=best_criteria[1],
-                            tb=true_branch, fb=false_branch)
+        tb = buildtree(best_sets[0], scoref, beta)
+        fb = buildtree(best_sets[1], scoref, beta)
+        return DecisionNode(col=best_criteria[0], value=best_criteria[1], tb=tb, fb=fb)
     else:
         return DecisionNode(results=unique_counts(part))
 
