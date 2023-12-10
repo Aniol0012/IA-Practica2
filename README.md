@@ -3,7 +3,7 @@
 ## Description
 
 This project, part of the Artificial Intelligence course at [Universitat de 
-Lleida](https://udl.cat)), focuses on supervised and unsupervised algorithms. It includes 
+Lleida](https://udl.cat), focuses on supervised and unsupervised algorithms. It includes 
 implementations and evaluations of decision trees and clustering methods.
 Key tasks involve building, pruning, and evaluating decision trees, performance
 testing, cross-validation, and various clustering techniques.
