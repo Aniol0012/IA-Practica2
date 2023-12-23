@@ -103,7 +103,7 @@ def _split_numeric(prototype: List, column: int, value):
 
 
 def _split_categorical(prototype: List, column: int, value: str):
-    raise NotImplementedError
+    return prototype[column] == value
 
 
 def divideset(part: Data, column: int, value) -> Tuple[Data, Data]:
@@ -192,7 +192,58 @@ def iterative_buildtree(part: Data, scoref=entropy, beta=0):
     """
     t10: Define the iterative version of the function buildtree
     """
-    raise NotImplementedError
+    if len(part) == 0:
+        return DecisionNode(results=unique_counts(part))
+
+    stack = []
+    node_stack = []
+    stack.append((0, part, None, 0))
+
+    while stack:
+        level, data, criteria, split_quality = stack.pop()
+        if level == 0:
+            current_score = scoref(data)
+            if current_score == 0:
+                node_stack.append(DecisionNode(results=unique_counts(data)))
+            else:
+                best_gain = 0.0
+                best_criteria = None
+                best_sets = None
+                column_count = len(data[0]) - 1
+
+                for column in range(column_count):
+                    column_values = set()
+                    for row in data:
+                        column_values.add(row[column])
+                    for value in column_values:
+                        set1, set2 = divideset(data, column, value)
+                        set1_len = len(set1)
+                        set2_len = len(set2)
+                        if set1_len == 0 or set2_len == 0:
+                            continue
+                        p = set1_len / len(data)
+                        gain = get_gain(current_score, p, scoref, set1, set2)
+                        if gain > best_gain:
+                            best_gain = gain
+                            best_criteria = (column, value)
+                            best_sets = (set1, set2)
+                if best_gain > beta:
+                    stack.append((1, data, best_criteria, best_gain))
+                    stack.append((0, best_sets[0], best_criteria, best_gain))
+                    stack.append((0, best_sets[1], best_criteria, best_gain))
+                else:
+                    node_stack.append(DecisionNode(results=unique_counts(data)))
+        elif level == 1:
+            true_branch = node_stack.pop()
+            false_branch = node_stack.pop()
+            node_stack.append(DecisionNode(col=criteria[0], value=criteria[1], tb=true_branch, fb=false_branch))
+            if len(data) == len(part):
+                return node_stack.pop()
+    return False
+
+
+def get_gain(current_score, p, scoref, set1, set2):
+    return current_score - p * scoref(set1) - (1 - p) * scoref(set2)
 
 
 def classify(tree, values):
