@@ -139,7 +139,11 @@ class DecisionNode:
         - results is a dictionary that stores the result
           for this branch. Is None except for the leaves
         """
-        raise NotImplementedError
+        self.col = col
+        self.value = value
+        self.results = results
+        self.tb = tb
+        self.fb = fb
 
 
 def buildtree(part: Data, scoref=entropy, beta=0):
@@ -247,7 +251,22 @@ def get_gain(current_score, p, scoref, set1, set2):
 
 
 def classify(tree, values):
-    raise NotImplementedError
+    if tree.results is not None:
+        return tree.results
+    else:
+        v = values[tree.col]
+        branch = None
+        if isinstance(v, (int, float)):
+            if v >= tree.value:
+                branch = tree.tb
+            else:
+                branch = tree.fb
+        else:
+            if v == tree.value:
+                branch = tree.tb
+            else:
+                branch = tree.fb
+        return classify(branch, values)
 
 
 def print_tree(tree, headers=None, indent=""):
