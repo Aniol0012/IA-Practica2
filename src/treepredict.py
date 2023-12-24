@@ -4,6 +4,8 @@ import collections
 from math import log2
 from typing import List, Tuple
 
+import evaluation
+
 # Used for typing
 Data = List[List]
 
@@ -309,6 +311,18 @@ def print_data(headers, data):
     print('-' * ((colsize + 1) * len(headers) + 1))
 
 
+""""
+def test(data):
+    print("Testing...")
+    train = evaluation.train_test_split(data, 0.7)
+    tree = buildtree(train)
+    accuracy = evaluation.get_accuracy(lambda row: classify(tree, row), train)
+    print("Accuracy on train dataset:", accuracy)
+    accuracy = evaluation.get_accuracy(lambda row: classify(tree, row), data)
+    print("Accuracy on test dataset:", accuracy)
+"""
+
+
 def main():
     try:
         filename = sys.argv[1]
@@ -330,6 +344,7 @@ def main():
 
     headers, data = read(filename)
     tree = buildtree(data)
+    # test(data)
     print_tree(tree, headers)
 
 
