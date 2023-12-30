@@ -283,11 +283,19 @@ def print_data(headers, data):
     print('-' * ((colsize + 1) * len(headers) + 1))
 
 
+def print_line(header=""):
+    len = 60
+    print("-" * (len // 2), end="")
+    print(header, end="")
+    print("-" * (len // 2))
+
+
 def main():
     try:
         filename = sys.argv[1]
     except IndexError:
-        filename = "decision_tree_example.txt"
+        #filename = "decision_tree_example.txt"
+        filename = "iris.csv"
 
     # header, data = read(filename)
     # print_data(header, data)
@@ -303,6 +311,8 @@ def main():
     # print(entropy([data[0]]))
 
     headers, data = read(filename)
+
+    print_line("Recursive build tree")
     tree = buildtree(data)
     print_tree(tree, headers)
 
