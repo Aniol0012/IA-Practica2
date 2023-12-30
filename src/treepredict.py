@@ -135,6 +135,40 @@ class DecisionNode:
         raise NotImplementedError
 
 
+def calculate_gain(part, column, value, current_score, score_function):
+    set1, set2 = divideset(part, column, value)
+    set1_len = len(set1)
+    set2_len = len(set2)
+
+    if set1_len == 0 or set2_len == 0:
+        return 0
+
+    part_set1 = set1_len / len(part)
+    gain = current_score - part_set1 * score_function(set1) - (1 - part_set1) * score_function(set2)
+    return gain, (set1, set2)
+
+
+def get_best_split(part, score_function, current_score):
+    best_gain = 0
+    best_criteria = None
+    best_sets = None
+    columns = len(part[0]) - 1
+
+    for column in range(columns):
+        column_values = set()
+        for row in part:
+            column_values.add(row[column])
+
+        for value in column_values:
+            gain, sets = calculate_gain(part, column, value, current_score, score_function)
+            if gain > best_gain:
+                best_gain = gain
+                best_criteria = (column, value)
+                best_sets = sets
+
+    return best_gain, best_criteria, best_sets
+
+
 def buildtree(part: Data, scoref=entropy, beta=0):
     """
     t9: Define a new function buildtree. This is a recursive function
@@ -147,12 +181,14 @@ def buildtree(part: Data, scoref=entropy, beta=0):
     current_score = scoref(part)
 
     # Set up some variables to track the best criteria
-    best_gain = 0
-    best_criteria = None
-    best_sets = None
-    # ...
-    # else:
-    #    return DecisionNode(results=unique_counts(part))
+    best_gain, best_criteria, best_sets = get_best_split(part, scoref, current_score)
+
+    if best_gain > beta:
+        tb = buildtree(best_sets[0], scoref, beta)
+        fb = buildtree(best_sets[1], scoref, beta)
+        return DecisionNode(col=best_criteria[0], value=best_criteria[1], tb=tb, fb=fb)
+    else:
+        return DecisionNode(results=unique_counts(part))
 
 
 def iterative_buildtree(part: Data, scoref=entropy, beta=0):
