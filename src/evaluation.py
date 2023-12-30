@@ -23,11 +23,7 @@ def train_test_split(dataset, test_size: Union[float, int], seed=None):
 
 
 def get_accuracy(classifier, dataset):
-    correct_parameter = 0
-    for row in dataset:
-        if classifier(row) == row[-1]:
-            correct_parameter += 1
-    return correct_parameter / len(dataset)
+    raise NotImplementedError
 
 
 def mean(values: List[float]):
@@ -35,36 +31,4 @@ def mean(values: List[float]):
 
 
 def cross_validation(dataset, k, agg, seed, scoref, beta, threshold):
-    if seed:
-        random.seed(seed)
-
-    # Divide the dataset into k folds
-    folds = list()
-    dataset_copy = list(dataset)
-    fold_size = int(len(dataset) / k)
-    for _ in range(k):
-        fold = list()
-        while len(fold) < fold_size:
-            index = random.randrange(len(dataset_copy))
-            fold.append(dataset_copy.pop(index))
-        folds.append(fold)
-
-    scores = list()
-    for fold in folds:
-        train_set = list(folds)
-        train_set.remove(fold)
-        train_set = sum(train_set, [])
-        test_set = list()
-        for row in fold:
-            row_copy = list(row)
-            test_set.append(row_copy)
-            row_copy[-1] = None
-
-        classifier = agg(train_set, scoref, beta, threshold)
-        for row in test_set:
-            row[-1] = classifier(row)
-        actual = [row[-1] for row in fold]
-        predicted = [row[-1] for row in test_set]
-        accuracy = get_accuracy(actual, predicted)
-        scores.append(accuracy)
-    return mean(scores)
+    raise NotImplementedError
