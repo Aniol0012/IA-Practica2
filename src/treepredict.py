@@ -103,7 +103,7 @@ def _split_numeric(prototype: List, column: int, value):
 
 
 def _split_categorical(prototype: List, column: int, value: str):
-    raise NotImplementedError
+    return prototype[column] == value
 
 
 def divideset(part: Data, column: int, value) -> Tuple[Data, Data]:
@@ -153,7 +153,7 @@ def calculate_gain(part, column, value, current_score, score_function):
     set2_len = len(set2)
 
     if set1_len == 0 or set2_len == 0:
-        return 0
+        return 0, (None, None)
 
     part_set1 = set1_len / len(part)
     gain = current_score - part_set1 * score_function(set1) - (1 - part_set1) * score_function(set2)
@@ -240,7 +240,23 @@ def iterative_buildtree(part: Data, scoref=entropy, beta=0):
 
 
 def classify(tree, values):
-    raise NotImplementedError
+    if tree.results is not None:
+        return tree.results
+    else:
+        # TODO: check this else
+        v = values[tree.col]
+        branch = None
+        if isinstance(v, (int, float)):
+            if v >= tree.value:
+                branch = tree.tb
+            else:
+                branch = tree.fb
+        else:
+            if v == tree.value:
+                branch = tree.tb
+            else:
+                branch = tree.fb
+        return classify(branch, values)
 
 
 def print_tree(tree, headers=None, indent=""):
@@ -315,6 +331,10 @@ def main():
     print_line("Recursive build tree")
     tree = buildtree(data)
     print_tree(tree, headers)
+
+    print_line("Iterative build tree")
+    tree = iterative_buildtree(data)
+    print_tree(tree)
 
 
 if __name__ == "__main__":
