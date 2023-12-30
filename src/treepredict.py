@@ -115,8 +115,16 @@ def divideset(part: Data, column: int, value) -> Tuple[Data, Data]:
         split_function = _split_numeric
     else:
         split_function = _split_categorical
-    # ...
-    return (set1, set2)
+
+    set1 = []
+    set2 = []
+
+    for row in part:
+        if split_function(row, column, value):
+            set1.append(row)
+        else:
+            set2.append(row)
+    return set1, set2
 
 
 class DecisionNode:
@@ -132,7 +140,11 @@ class DecisionNode:
         - results is a dictionary that stores the result
           for this branch. Is None except for the leaves
         """
-        raise NotImplementedError
+        self.col = col
+        self.value = value
+        self.results = results
+        self.tb = tb
+        self.fb = fb
 
 
 def calculate_gain(part, column, value, current_score, score_function):
@@ -195,7 +207,36 @@ def iterative_buildtree(part: Data, scoref=entropy, beta=0):
     """
     t10: Define the iterative version of the function buildtree
     """
-    raise NotImplementedError
+    if len(part) == 0:
+        return DecisionNode(results=unique_counts(part))
+
+    # stack: (data, parent_node, is_tb)
+    stack = [(part, None, 0)]
+    root = None
+
+    while stack:
+        data, parent_node, is_tb = stack.pop()
+        if not data:
+            continue
+
+        current_score = scoref(data)
+        best_gain, best_criteria, best_sets = get_best_split(data, scoref, current_score)
+
+        if best_gain > beta:
+            node = DecisionNode(col=best_criteria[0], value=best_criteria[1])
+            stack.append((best_sets[0], node, True))
+            stack.append((best_sets[1], node, False))
+        else:
+            node = DecisionNode(results=unique_counts(data))
+
+        if parent_node:
+            if is_tb:
+                parent_node.tb = node
+            else:
+                parent_node.fb = node
+        else:
+            root = node
+    return root
 
 
 def classify(tree, values):
