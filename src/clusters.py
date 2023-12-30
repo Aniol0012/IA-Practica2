@@ -1,5 +1,6 @@
 from typing import Tuple, List
 from math import sqrt
+import random
 
 
 def readfile(filename: str) -> Tuple[List, List, List]:
@@ -21,7 +22,9 @@ def readfile(filename: str) -> Tuple[List, List, List]:
 # .........DISTANCES........
 # They are normalized between 0 and 1, where 1 means two vectors are identical
 def euclidean(v1, v2):
-    distance = 0  # TODO
+    distance = 0
+    for i in range(len(v1)):
+        distance += (v1[i] - v2[i]) ** 2
     return 1 / (1 + distance)
 
 
@@ -113,4 +116,4 @@ def printclust(clust: BiCluster, labels=None, n=0):
 # ......... K-MEANS ..........
 def kcluster(rows, distance, k=4):
     # TODO
-    raise NotImplementedError
+    pass
