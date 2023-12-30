@@ -115,7 +115,7 @@ def divideset(part: Data, column: int, value) -> Tuple[Data, Data]:
         split_function = _split_numeric
     else:
         split_function = _split_categorical
-    #...
+    # ...
     return (set1, set2)
 
 
@@ -145,13 +145,13 @@ def buildtree(part: Data, scoref=entropy, beta=0):
         return DecisionNode()
 
     current_score = scoref(part)
-    
+
     # Set up some variables to track the best criteria
     best_gain = 0
     best_criteria = None
     best_sets = None
     # ...
-    #else:
+    # else:
     #    return DecisionNode(results=unique_counts(part))
 
 
