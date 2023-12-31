@@ -13,6 +13,10 @@ k = 5
 seed = 50
 
 ############# clusters #############
+iterations = 10
+
+k_for_clusters = 4
+
 # Range of the values of each centroid
 k_range = range(2, 10)
 

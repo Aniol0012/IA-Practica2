@@ -116,16 +116,17 @@ def printclust(clust: BiCluster, labels=None, n=0):
         printclust(clust.right, labels=labels, n=n + 1)
 
 
-def distance_for_each_k(rows, k_range, distance=euclidean_squared, executions=10):
+def distance_for_each_k(rows, k_range):
+    distance = euclidean_squared
     distances = []
     for k in k_range:
-        _, best_distance = kcluster(rows, distance, k, executions)
+        _, best_distance = kcluster(rows, distance, k)
         distances.append(best_distance)
     return distances
 
 
 # ......... K-MEANS ..........
-def kcluster(rows, distance=euclidean_squared, k=4, executions=10) -> Tuple[List, float]:
+def kcluster(rows, distance, k=config.k_for_clusters) -> Tuple[List, float]:
     ranges = []
     for i in range(len(rows[0])):
         col_values = []
@@ -137,7 +138,7 @@ def kcluster(rows, distance=euclidean_squared, k=4, executions=10) -> Tuple[List
     best_centroids = None
     best_matches = None
 
-    for _ in range(executions):
+    for _ in range(config.iterations):
         centroids = fill_centroids(k, ranges)
         last_matches = None
 
