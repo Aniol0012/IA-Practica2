@@ -2,6 +2,10 @@ import random
 from typing import Union, List
 import treepredict
 
+FILE1 = "decision_tree_example.txt"
+FILE2 = "iris.csv"
+
+ROUND_DIGITS = 3
 
 def train_test_split(dataset, test_size: Union[float, int], seed=None):
     if seed:
@@ -55,33 +59,38 @@ def cross_validation(dataset, k, agg, seed, scoref, beta, threshold):
 
 
 def find_best_threshold(dataset, thresholds, k, scoref, seed):
-    # Assume dataset is already loaded and is a list of lists, with the class label as the last item in each sublist
     train, test = train_test_split(dataset, test_size=0.2, seed=seed)
     best_threshold = None
-    best_accuracy = 0.0  # Start with zero accuracy
+    best_accuracy = 0.0
 
     for threshold in thresholds:
         accuracy = cross_validation(train, k=k, agg=mean, seed=seed, scoref=scoref, beta=threshold, threshold=threshold)
-        print(f"Threshold: {threshold}, Cross-Validation Accuracy: {accuracy}")
+        print(f"Threshold: {threshold}, Cross-Validation Accuracy: {round(accuracy, ROUND_DIGITS)}")
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             best_threshold = threshold
 
     if best_threshold is not None:
-        print(f"Best threshold: {best_threshold} with accuracy: {best_accuracy}")
-        # Train a new tree with the best threshold and the entire training set
+        print(f"Best threshold: {best_threshold} with accuracy: {round(best_accuracy, ROUND_DIGITS)}")
         tree = treepredict.buildtree(train, scoref=scoref, beta=best_threshold)
-        # Test this tree on the test dataset
         test_accuracy = get_accuracy(tree, test)
-        print(f"Test set accuracy with best threshold: {test_accuracy}")
+        print(f"Test set accuracy with best threshold: {round(test_accuracy, ROUND_DIGITS)}")
     else:
-        print("No valid threshold found with the current settings.")
+        print("There is no best threshold")
 
     return best_threshold
 
 
-if __name__ == "__main__":
-    filename = "iris.csv"
+def test_find_best_threshold(filename):
     headers, data = treepredict.read(filename)
-    thresholds = [0.01, 0.05, 0.1, 0.2]  # Example threshold values
+    thresholds = [0.01, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0]
     best_threshold = find_best_threshold(data, thresholds, k=5, scoref=treepredict.entropy, seed=42)
+    print(f"Best threshold: {best_threshold}")
+
+
+if __name__ == "__main__":
+    treepredict.print_line(FILE1)
+    test_find_best_threshold(FILE1)
+
+    treepredict.print_line(FILE2)
+    test_find_best_threshold(FILE2)
