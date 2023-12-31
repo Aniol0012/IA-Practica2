@@ -218,18 +218,24 @@ def get_total_distance(rows, best_matches, centroids, distance):
 
 # ...........MAIN.............
 def main():
-    # row_names, headers, data = readfile("blogdata.txt")
-    row_names, headers, data = readfile("blogdata_full.txt")
+    test_clustering("blogdata.txt")
+    test_clustering("blogdata_full.txt")
+
+
+def test_clustering(filename):
+    row_names, headers, data = readfile(filename)
 
     k_range = range(2, 10)
-
     distances = distance_for_different_k(data, k_range)
 
     print("Total distances for different k values:")
     for k, dist in zip(k_range, distances):
         print(f"k = {k}: Total distance = {dist}")
 
-    # Plot the elbow method
+    print_plot(k_range, distances)
+
+
+def print_plot(k_range, distances):
     plt.plot(k_range, distances, '-o')
     plt.xlabel('Number of clusters (k)')
     plt.ylabel('Total distance')
