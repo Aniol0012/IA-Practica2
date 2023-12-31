@@ -91,8 +91,8 @@ def find_best_threshold(dataset, thresholds, k, scoref, seed) -> (float, float):
 
 def test_find_best_threshold(filename) -> None:
     headers, data = treepredict.read(filename)
-    best_threshold, best_accuracy = find_best_threshold(data, config.evaluation_thresholds, k=5,
-                                                        scoref=treepredict.entropy, seed=42)
+    best_threshold, best_accuracy = find_best_threshold(data, config.evaluation_thresholds, k=config.k,
+                                                        scoref=treepredict.entropy, seed=config.seed)
     print(f"RESULT -> Best threshold: {best_threshold} with an accuracy of {round(best_accuracy, config.ROUND_DIGITS)}")
 
 

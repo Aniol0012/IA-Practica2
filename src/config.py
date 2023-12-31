@@ -1,12 +1,18 @@
-##### treepredict #####
+############# treepredict #############
 FILE1 = "decision_tree_example.txt"
 FILE2 = "iris.csv"
 
-##### evaluation #####
+############# evaluation #############
 ROUND_DIGITS = 3
 evaluation_thresholds = [0.001, 0.01, 0.1, 0.2, 0.5, 1.0]
 
-##### clusters #####
+# Number of partitions (folds) that will be generated
+k = 5
+
+# The seed used to separate the dataset
+seed = 50
+
+############# clusters #############
 # Range of the values of each centroid
 k_range = range(2, 10)
 
@@ -16,7 +22,7 @@ FILE4 = "blogdata_full.txt"
 SHOW_PLOTS = True
 
 
-##### general config #####
+############# general config #############
 def print_line(header="", length=60):
     print("-" * (length // 2), end="")
     print(f" {header} ", end="")
