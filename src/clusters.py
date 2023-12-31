@@ -232,7 +232,7 @@ def test_clustering(filename):
 
     print("Total distances for different k values:")
     for k, dist in zip(k_range, distances):
-        print(f"k = {k}: Total distance = {dist}")
+        print(f"k = {k}: Total distance = {round(dist, config.CLUSTERS_ROUND_DIGITS)}")
 
     print_plot(k_range, distances)
 
