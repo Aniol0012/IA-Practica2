@@ -1,6 +1,7 @@
 from typing import Tuple, List
 from math import sqrt
 import random
+import matplotlib.pyplot as plt
 
 
 def readfile(filename: str) -> Tuple[List, List, List]:
@@ -113,6 +114,35 @@ def printclust(clust: BiCluster, labels=None, n=0):
         printclust(clust.right, labels=labels, n=n + 1)
 
 
+def main():
+    row_names, headers, data = readfile("blogdata.txt")
+
+    k_range = range(2, 10)
+
+    distances = distance_for_different_k(data, k_range)
+
+    print("Distancias Totales para Diferentes Valores de k:")
+    for k, dist in zip(k_range, distances):
+        print(f"k = {k}: Distancia Total = {dist}")
+
+    # Graficar el método del codo
+    """
+    plt.plot(k_range, distances, '-o')
+    plt.xlabel('Número de Clusters (k)')
+    plt.ylabel('Distancia Total')
+    plt.title('Método del Codo para Determinar k')
+    plt.show()
+    """
+
+
+def distance_for_different_k(rows, k_range, distance=euclidean_squared, executions=10):
+    distances = []
+    for k in k_range:
+        _, total_distance = kcluster(rows, distance, k, executions)
+        distances.append(total_distance)
+    return distances
+
+
 # ......... K-MEANS ..........
 def kcluster(rows, distance=euclidean_squared, k=4, executions=10):
     ranges = []
@@ -183,14 +213,19 @@ def group_rows(rows, centroids, distance):
 def update_centroid(rows, best_matches, k):
     new_centroids = []
     for i in range(k):
+        # Make sure the list of best_matches indexes has elements
+        if not best_matches or i >= len(best_matches) or len(best_matches[i]) == 0:
+            continue
+
         avgs = [0.0] * len(rows[0])
-        if len(best_matches[i]) > 0:
-            for row_id in best_matches[i]:
-                for m in range(len(rows[0])):
-                    avgs[m] += rows[row_id][m]
-            for j in range(len(avgs)):
-                avgs[j] /= len(best_matches[i])
-            new_centroids.append(avgs)
+        for row_id in best_matches[i]:
+            for m in range(len(rows[0])):
+                avgs[m] += rows[row_id][m]
+
+        # Calculate the average for each column
+        # TODO: change this for loop
+        avgs = [avg / len(best_matches[i]) for avg in avgs]
+        new_centroids.append(avgs)
     return new_centroids
 
 
@@ -200,3 +235,7 @@ def get_total_distance(rows, best_matches, centroids, distance):
         for row_id in best_matches[i]:
             total_distance += distance(rows[row_id], centroids[i])
     return total_distance
+
+
+if __name__ == '__main__':
+    main()
