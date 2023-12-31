@@ -93,7 +93,7 @@ def test_find_best_threshold(filename) -> None:
     headers, data = treepredict.read(filename)
     best_threshold, best_accuracy = find_best_threshold(data, config.evaluation_thresholds, k=5,
                                                         scoref=treepredict.entropy, seed=42)
-    print(f"RESULT -> Best threshold: {best_threshold} with accuracy of {round(best_accuracy, config.ROUND_DIGITS)}")
+    print(f"RESULT -> Best threshold: {best_threshold} with an accuracy of {round(best_accuracy, config.ROUND_DIGITS)}")
 
 
 if __name__ == "__main__":
