@@ -97,8 +97,8 @@ def test_find_best_threshold(filename) -> None:
 
 
 if __name__ == "__main__":
-    config.print_line(config.FILE1)  # decision_tree_example.txt
-    test_find_best_threshold(config.FILE1)
+    # config.print_line(config.FILE1)  # decision_tree_example.txt
+    # test_find_best_threshold(config.FILE1)
 
     config.print_line(config.FILE2)  # iris.csv
     test_find_best_threshold(config.FILE2)
