@@ -115,7 +115,8 @@ def printclust(clust: BiCluster, labels=None, n=0):
 
 
 def main():
-    row_names, headers, data = readfile("blogdata.txt")
+    # row_names, headers, data = readfile("blogdata.txt")
+    row_names, headers, data = readfile("blogdata_full.txt")
 
     k_range = range(2, 10)
 
@@ -126,13 +127,11 @@ def main():
         print(f"k = {k}: Distancia Total = {dist}")
 
     # Graficar el método del codo
-    """
     plt.plot(k_range, distances, '-o')
     plt.xlabel('Número de Clusters (k)')
     plt.ylabel('Distancia Total')
     plt.title('Método del Codo para Determinar k')
     plt.show()
-    """
 
 
 def distance_for_different_k(rows, k_range, distance=euclidean_squared, executions=10):
@@ -157,7 +156,7 @@ def kcluster(rows, distance=euclidean_squared, k=4, executions=10):
     best_matches = None
 
     for _ in range(executions):
-        centroids = fill_centroids(rows, k, ranges)
+        centroids = fill_centroids(k, ranges)
         last_matches = None
 
         for t in range(100):
@@ -176,10 +175,10 @@ def kcluster(rows, distance=euclidean_squared, k=4, executions=10):
             best_centroids = centroids
             best_matches = best_matches
 
-    return best_centroids, best_matches
+    return best_centroids, lowest_distance
 
 
-def fill_centroids(rows, k, ranges):
+def fill_centroids(k, ranges):
     centroids = []
     for i in range(k):
         centroid = []
