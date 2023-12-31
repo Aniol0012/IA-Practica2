@@ -7,6 +7,7 @@ FILE2 = "iris.csv"
 
 ROUND_DIGITS = 3
 
+
 def train_test_split(dataset, test_size: Union[float, int], seed=None):
     if seed:
         random.seed(seed)
@@ -70,22 +71,22 @@ def find_best_threshold(dataset, thresholds, k, scoref, seed):
             best_accuracy = accuracy
             best_threshold = threshold
 
-    if best_threshold is not None:
-        print(f"Best threshold: {best_threshold} with accuracy: {round(best_accuracy, ROUND_DIGITS)}")
-        tree = treepredict.buildtree(train, scoref=scoref, beta=best_threshold)
-        test_accuracy = get_accuracy(tree, test)
-        print(f"Test set accuracy with best threshold: {round(test_accuracy, ROUND_DIGITS)}")
-    else:
+    if best_threshold is None:
         print("There is no best threshold")
+        return None, None
 
-    return best_threshold
+    tree = treepredict.buildtree(train, scoref=scoref, beta=best_threshold)
+    test_accuracy = get_accuracy(tree, test)
+    print(f"Test set accuracy with best threshold: {round(test_accuracy, ROUND_DIGITS)}")
+
+    return best_threshold, best_accuracy
 
 
 def test_find_best_threshold(filename):
     headers, data = treepredict.read(filename)
-    thresholds = [0.01, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0]
-    best_threshold = find_best_threshold(data, thresholds, k=5, scoref=treepredict.entropy, seed=42)
-    print(f"Best threshold: {best_threshold}")
+    thresholds = [0.001, 0.01, 0.1, 0.2, 0.5, 1.0]
+    best_threshold, best_accuracy = find_best_threshold(data, thresholds, k=5, scoref=treepredict.entropy, seed=42)
+    print(f"RESULT -> Best threshold: {best_threshold} with accuracy of {round(best_accuracy, ROUND_DIGITS)}")
 
 
 if __name__ == "__main__":

@@ -300,17 +300,17 @@ def print_data(headers, data):
 
 
 def print_line(header=""):
-    len = 60
-    print("-" * (len // 2), end="")
+    line_length = 60
+    print("-" * (line_length // 2), end="")
     print(header, end="")
-    print("-" * (len // 2))
+    print("-" * (line_length // 2))
 
 
 def main():
     try:
         filename = sys.argv[1]
     except IndexError:
-        #filename = "decision_tree_example.txt"
+        # filename = "decision_tree_example.txt"
         filename = "iris.csv"
 
     # header, data = read(filename)
