@@ -67,7 +67,7 @@ def cross_validation(dataset, k, agg, seed, scoref, beta, threshold) -> float:
 
 
 def find_best_threshold(dataset, thresholds, k, scoref, seed) -> (float, float):
-    train, test = train_test_split(dataset, test_size=0.2, seed=seed)
+    train, test = train_test_split(dataset, test_size=config.test_size, seed=seed)
     best_threshold = None
     best_accuracy = 0.0
 

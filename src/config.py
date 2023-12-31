@@ -6,6 +6,9 @@ FILE2 = "iris.csv"
 ROUND_DIGITS = 3
 evaluation_thresholds = [0.001, 0.01, 0.1, 0.2, 0.5, 1.0]
 
+# Percentage of the dataset that will be used for testing
+test_size = 0.2  # 20%
+
 # Number of partitions (folds) that will be generated
 k = 5
 
