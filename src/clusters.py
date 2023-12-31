@@ -227,16 +227,15 @@ def main():
 def test_clustering(filename) -> None:
     row_names, headers, data = readfile(filename)
 
-    k_range = range(2, 10)
-    distances = distance_for_each_k(data, k_range)
+    distances = distance_for_each_k(data, config.k_range)
 
     config.print_line(f"Clustering of {filename} file")
     print("Total distances for different k values:")
-    for k, dist in zip(k_range, distances):
+    for k, dist in zip(config.k_range, distances):
         print(f"k = {k}: Total distance = {dist}")
 
     if config.SHOW_PLOTS:
-        print_plot(k_range, distances)
+        print_plot(config.k_range, distances)
 
 
 def print_plot(k_range, distances):
