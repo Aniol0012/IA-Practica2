@@ -318,7 +318,7 @@ def main():
     # print(entropy([]))
     # print(entropy([data[0]]))
 
-    test_buildtree(config.FILE1)  # decision_tree_example.txt
+    # test_buildtree(config.FILE1)  # decision_tree_example.txt
     test_buildtree(config.FILE2)  # iris.csv
 
 
