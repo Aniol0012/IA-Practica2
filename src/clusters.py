@@ -230,9 +230,10 @@ def test_clustering(filename):
     k_range = range(2, 10)
     distances = distance_for_different_k(data, k_range)
 
+    config.print_line(f"Clustering of {filename} file")
     print("Total distances for different k values:")
     for k, dist in zip(k_range, distances):
-        print(f"k = {k}: Total distance = {round(dist, config.CLUSTERS_ROUND_DIGITS)}")
+        print(f"k = {k}: Total distance = {dist}")
 
     print_plot(k_range, distances)
 

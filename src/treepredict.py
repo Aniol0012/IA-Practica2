@@ -300,13 +300,6 @@ def print_data(headers, data):
     print('-' * ((colsize + 1) * len(headers) + 1))
 
 
-def print_line(header=""):
-    line_length = 60
-    print("-" * (line_length // 2), end="")
-    print(header, end="")
-    print("-" * (line_length // 2))
-
-
 def main():
     try:
         filename = sys.argv[1]
@@ -331,15 +324,16 @@ def main():
 
 
 def test_buildtree(filename, recursive=True, iterative=True):
+    config.print_line(filename, 80)
     headers, data = read(filename)
 
     if recursive:
-        print_line("Recursive build tree")
+        config.print_line("Recursive build tree")
         tree = buildtree(data)
         print_tree(tree, headers)
 
     if iterative:
-        print_line("Iterative build tree")
+        config.print_line("Iterative build tree")
         tree = iterative_buildtree(data)
         print_tree(tree)
 
