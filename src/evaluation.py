@@ -4,8 +4,6 @@ from typing import Union, List
 import config
 import treepredict
 
-ROUND_DIGITS = 3
-
 
 def train_test_split(dataset, test_size: Union[float, int], seed=None):
     if seed:
@@ -65,7 +63,7 @@ def find_best_threshold(dataset, thresholds, k, scoref, seed):
 
     for threshold in thresholds:
         accuracy = cross_validation(train, k=k, agg=mean, seed=seed, scoref=scoref, beta=threshold, threshold=threshold)
-        print(f"Threshold: {threshold}, Cross-Validation Accuracy: {round(accuracy, ROUND_DIGITS)}")
+        print(f"Threshold: {threshold}, Cross-Validation Accuracy: {round(accuracy, config.ROUND_DIGITS)}")
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             best_threshold = threshold
@@ -76,16 +74,16 @@ def find_best_threshold(dataset, thresholds, k, scoref, seed):
 
     tree = treepredict.buildtree(train, scoref=scoref, beta=best_threshold)
     test_accuracy = get_accuracy(tree, test)
-    print(f"Test set accuracy with best threshold: {round(test_accuracy, ROUND_DIGITS)}")
+    print(f"Test set accuracy with best threshold: {round(test_accuracy, config.ROUND_DIGITS)}")
 
     return best_threshold, best_accuracy
 
 
 def test_find_best_threshold(filename):
     headers, data = treepredict.read(filename)
-    thresholds = [0.001, 0.01, 0.1, 0.2, 0.5, 1.0]
-    best_threshold, best_accuracy = find_best_threshold(data, thresholds, k=5, scoref=treepredict.entropy, seed=42)
-    print(f"RESULT -> Best threshold: {best_threshold} with accuracy of {round(best_accuracy, ROUND_DIGITS)}")
+    best_threshold, best_accuracy = find_best_threshold(data, config.evaluation_thresholds, k=5,
+                                                        scoref=treepredict.entropy, seed=42)
+    print(f"RESULT -> Best threshold: {best_threshold} with accuracy of {round(best_accuracy, config.ROUND_DIGITS)}")
 
 
 if __name__ == "__main__":
