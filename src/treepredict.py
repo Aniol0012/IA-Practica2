@@ -4,8 +4,6 @@ import collections
 from math import log2
 from typing import List, Tuple
 
-import evaluation
-
 # Used for typing
 Data = List[List]
 
@@ -118,13 +116,14 @@ def divideset(part: Data, column: int, value) -> Tuple[Data, Data]:
     else:
         split_function = _split_categorical
 
-    set1, set2 = [], []
+    set1 = []
+    set2 = []
 
-    for row in part:  # For each row in the dataset
-        if split_function(row, column, value):  # If it matches the criteria
-            set1.append(row)  # Add it to the first set
+    for row in part:
+        if split_function(row, column, value):
+            set1.append(row)
         else:
-            set2.append(row)  # Add it to the second set
+            set2.append(row)
     return set1, set2
 
 
@@ -148,6 +147,40 @@ class DecisionNode:
         self.fb = fb
 
 
+def calculate_gain(part, column, value, current_score, score_function):
+    set1, set2 = divideset(part, column, value)
+    set1_len = len(set1)
+    set2_len = len(set2)
+
+    if set1_len == 0 or set2_len == 0:
+        return 0, (None, None)
+
+    part_set1 = set1_len / len(part)
+    gain = current_score - part_set1 * score_function(set1) - (1 - part_set1) * score_function(set2)
+    return gain, (set1, set2)
+
+
+def get_best_split(part, score_function, current_score):
+    best_gain = 0
+    best_criteria = None
+    best_sets = None
+    columns = len(part[0]) - 1
+
+    for column in range(columns):
+        column_values = set()
+        for row in part:
+            column_values.add(row[column])
+
+        for value in column_values:
+            gain, sets = calculate_gain(part, column, value, current_score, score_function)
+            if gain > best_gain:
+                best_gain = gain
+                best_criteria = (column, value)
+                best_sets = sets
+
+    return best_gain, best_criteria, best_sets
+
+
 def buildtree(part: Data, scoref=entropy, beta=0):
     """
     t9: Define a new function buildtree. This is a recursive function
@@ -160,32 +193,8 @@ def buildtree(part: Data, scoref=entropy, beta=0):
     current_score = scoref(part)
 
     # Set up some variables to track the best criteria
-    best_gain = 0
-    best_criteria = None
-    best_sets = None
+    best_gain, best_criteria, best_sets = get_best_split(part, scoref, current_score)
 
-    column_count = len(part[0]) - 1  # Attributes
-    for column in range(column_count):
-        column_values = set()
-        for row in part:
-            column_values.add(row[column])
-
-        for value in column_values:
-            set1, set2 = divideset(part, column, value)
-            set1_len = len(set1)
-            set2_len = len(set2)
-
-            if set1_len == 0 or set2_len == 0:
-                continue
-
-            p = set1_len / len(part)
-            gain = current_score - p * scoref(set1) - (1 - p) * scoref(set2)
-            if gain > best_gain:
-                best_gain = gain
-                best_criteria = (column, value)
-                best_sets = (set1, set2)
-
-    # Check if best gain is significant enough
     if best_gain > beta:
         tb = buildtree(best_sets[0], scoref, beta)
         fb = buildtree(best_sets[1], scoref, beta)
@@ -201,61 +210,40 @@ def iterative_buildtree(part: Data, scoref=entropy, beta=0):
     if len(part) == 0:
         return DecisionNode(results=unique_counts(part))
 
-    stack = []
-    node_stack = []
-    stack.append((0, part, None, 0))
+    # stack: (data, parent_node, is_tb)
+    stack = [(part, None, 0)]
+    root = None
 
     while stack:
-        level, data, criteria, split_quality = stack.pop()
-        if level == 0:
-            current_score = scoref(data)
-            if current_score == 0:
-                node_stack.append(DecisionNode(results=unique_counts(data)))
+        data, parent_node, is_tb = stack.pop()
+        if not data:
+            continue
+
+        current_score = scoref(data)
+        best_gain, best_criteria, best_sets = get_best_split(data, scoref, current_score)
+
+        if best_gain > beta:
+            node = DecisionNode(col=best_criteria[0], value=best_criteria[1])
+            stack.append((best_sets[0], node, True))
+            stack.append((best_sets[1], node, False))
+        else:
+            node = DecisionNode(results=unique_counts(data))
+
+        if parent_node:
+            if is_tb:
+                parent_node.tb = node
             else:
-                best_gain = 0.0
-                best_criteria = None
-                best_sets = None
-                column_count = len(data[0]) - 1
-
-                for column in range(column_count):
-                    column_values = set()
-                    for row in data:
-                        column_values.add(row[column])
-                    for value in column_values:
-                        set1, set2 = divideset(data, column, value)
-                        set1_len = len(set1)
-                        set2_len = len(set2)
-                        if set1_len == 0 or set2_len == 0:
-                            continue
-                        p = set1_len / len(data)
-                        gain = get_gain(current_score, p, scoref, set1, set2)
-                        if gain > best_gain:
-                            best_gain = gain
-                            best_criteria = (column, value)
-                            best_sets = (set1, set2)
-                if best_gain > beta:
-                    stack.append((1, data, best_criteria, best_gain))
-                    stack.append((0, best_sets[0], best_criteria, best_gain))
-                    stack.append((0, best_sets[1], best_criteria, best_gain))
-                else:
-                    node_stack.append(DecisionNode(results=unique_counts(data)))
-        elif level == 1:
-            true_branch = node_stack.pop()
-            false_branch = node_stack.pop()
-            node_stack.append(DecisionNode(col=criteria[0], value=criteria[1], tb=true_branch, fb=false_branch))
-            if len(data) == len(part):
-                return node_stack.pop()
-    return False
-
-
-def get_gain(current_score, p, scoref, set1, set2):
-    return current_score - p * scoref(set1) - (1 - p) * scoref(set2)
+                parent_node.fb = node
+        else:
+            root = node
+    return root
 
 
 def classify(tree, values):
     if tree.results is not None:
         return tree.results
     else:
+        # TODO: check this else
         v = values[tree.col]
         branch = None
         if isinstance(v, (int, float)):
@@ -311,23 +299,19 @@ def print_data(headers, data):
     print('-' * ((colsize + 1) * len(headers) + 1))
 
 
-""""
-def test(data):
-    print("Testing...")
-    train = evaluation.train_test_split(data, 0.7)
-    tree = buildtree(train)
-    accuracy = evaluation.get_accuracy(lambda row: classify(tree, row), train)
-    print("Accuracy on train dataset:", accuracy)
-    accuracy = evaluation.get_accuracy(lambda row: classify(tree, row), data)
-    print("Accuracy on test dataset:", accuracy)
-"""
+def print_line(header=""):
+    line_length = 60
+    print("-" * (line_length // 2), end="")
+    print(header, end="")
+    print("-" * (line_length // 2))
 
 
 def main():
     try:
         filename = sys.argv[1]
     except IndexError:
-        filename = "decision_tree_example.txt"
+        # filename = "decision_tree_example.txt"
+        filename = "iris.csv"
 
     # header, data = read(filename)
     # print_data(header, data)
@@ -343,9 +327,14 @@ def main():
     # print(entropy([data[0]]))
 
     headers, data = read(filename)
+
+    print_line("Recursive build tree")
     tree = buildtree(data)
-    # test(data)
     print_tree(tree, headers)
+
+    print_line("Iterative build tree")
+    tree = iterative_buildtree(data)
+    print_tree(tree)
 
 
 if __name__ == "__main__":

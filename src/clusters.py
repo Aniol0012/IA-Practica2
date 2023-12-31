@@ -1,5 +1,7 @@
 from typing import Tuple, List
 from math import sqrt
+import random
+import matplotlib.pyplot as plt
 
 
 def readfile(filename: str) -> Tuple[List, List, List]:
@@ -21,7 +23,9 @@ def readfile(filename: str) -> Tuple[List, List, List]:
 # .........DISTANCES........
 # They are normalized between 0 and 1, where 1 means two vectors are identical
 def euclidean(v1, v2):
-    distance = 0  # TODO
+    distance = 0
+    for i in range(len(v1)):
+        distance += (v1[i] - v2[i]) ** 2
     return 1 / (1 + distance)
 
 
@@ -110,7 +114,134 @@ def printclust(clust: BiCluster, labels=None, n=0):
         printclust(clust.right, labels=labels, n=n + 1)
 
 
+def distance_for_different_k(rows, k_range, distance=euclidean_squared, executions=10):
+    distances = []
+    for k in k_range:
+        _, total_distance = kcluster(rows, distance, k, executions)
+        distances.append(total_distance)
+    return distances
+
+
 # ......... K-MEANS ..........
-def kcluster(rows, distance, k=4):
-    # TODO
-    raise NotImplementedError
+def kcluster(rows, distance=euclidean_squared, k=4, executions=10):
+    ranges = []
+    for i in range(len(rows[0])):
+        col_values = []
+        for row in rows:
+            col_values.append(row[i])
+        ranges.append((min(col_values), max(col_values)))
+
+    lowest_distance = float('inf')
+    best_centroids = None
+    best_matches = None
+
+    for _ in range(executions):
+        centroids = fill_centroids(k, ranges)
+        last_matches = None
+
+        for t in range(100):
+            best_matches = group_rows(rows, centroids, distance)
+
+            if best_matches == last_matches:
+                break
+            last_matches = best_matches
+
+            centroids = update_centroid(rows, best_matches, k)
+
+        total_distance = get_total_distance(rows, best_matches, centroids, distance)
+
+        if total_distance < lowest_distance:
+            lowest_distance = total_distance
+            best_centroids = centroids
+            best_matches = best_matches
+
+    return best_centroids, lowest_distance
+
+
+def fill_centroids(k, ranges):
+    centroids = []
+    for i in range(k):
+        centroid = []
+        for r in ranges:
+            centroid.append(random.uniform(r[0], r[1]))
+        centroids.append(centroid)
+    return centroids
+
+
+def group_rows(rows, centroids, distance):
+    """
+    This function groups rows into k clusters
+    """
+    best_matches = []
+    for _ in range(len(centroids)):
+        best_matches.append([])
+
+    for j in range(len(rows)):
+        row = rows[j]
+        best_match = 0
+        min_dist = distance(centroids[0], row)
+        for i in range(1, len(centroids)):
+            d = distance(centroids[i], row)
+            if d < min_dist:
+                best_match = i
+                min_dist = d
+        best_matches[best_match].append(j)
+    return best_matches
+
+
+def update_centroid(rows, best_matches, k):
+    new_centroids = []
+    for i in range(k):
+        # Make sure the list of best_matches indexes has elements
+        if not best_matches or i >= len(best_matches) or len(best_matches[i]) == 0:
+            continue
+
+        averages = [0.0] * len(rows[0])
+        for row_id in best_matches[i]:
+            for m in range(len(rows[0])):
+                averages[m] += rows[row_id][m]
+
+        # Calculate the average for each column
+        for j in range(len(averages)):
+            averages[j] = averages[j] / len(best_matches[i])
+        new_centroids.append(averages)
+    return new_centroids
+
+
+def get_total_distance(rows, best_matches, centroids, distance):
+    total_distance = 0
+    for i in range(len(centroids)):
+        for row_id in best_matches[i]:
+            total_distance += distance(rows[row_id], centroids[i])
+    return total_distance
+
+
+# ...........MAIN.............
+def main():
+    test_clustering("blogdata.txt")
+    test_clustering("blogdata_full.txt")
+
+
+def test_clustering(filename):
+    row_names, headers, data = readfile(filename)
+
+    k_range = range(2, 10)
+    distances = distance_for_different_k(data, k_range)
+
+    print("Total distances for different k values:")
+    for k, dist in zip(k_range, distances):
+        print(f"k = {k}: Total distance = {dist}")
+
+    print_plot(k_range, distances)
+
+
+def print_plot(k_range, distances):
+    plt.plot(k_range, distances, '-o')
+    plt.xlabel('Number of clusters (k)')
+    plt.ylabel('Total distance')
+    plt.title('Elbow Method For Optimal k')
+    plt.show()
+
+
+if __name__ == '__main__':
+    main()
