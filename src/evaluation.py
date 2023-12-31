@@ -5,7 +5,7 @@ import config
 import treepredict
 
 
-def train_test_split(dataset, test_size: Union[float, int], seed=None):
+def train_test_split(dataset, test_size: Union[float, int], seed=None) -> (List, List):
     if seed:
         random.seed(seed)
 
@@ -28,9 +28,11 @@ def train_test_split(dataset, test_size: Union[float, int], seed=None):
 def get_accuracy(tree, dataset):
     correct_count = 0
     for row in dataset:
-        prediction = list(treepredict.classify(tree, row[:-1]).keys())[0]
-        if prediction == row[-1]:
-            correct_count += 1
+        result = treepredict.classify(tree, row[:-1])
+        if result:
+            result_value = list(result.keys())[0]
+            if result_value == row[-1]:
+                correct_count += 1
     return correct_count / len(dataset)
 
 
@@ -38,16 +40,24 @@ def mean(values: List[float]):
     return sum(values) / len(values)
 
 
-def cross_validation(dataset, k, agg, seed, scoref, beta, threshold):
+def cross_validation(dataset, k, agg, seed, scoref, beta, threshold) -> float:
     random.seed(seed)
     random.shuffle(dataset)
-    fold_size = int(len(dataset) / k)
-    folds = [dataset[i:i + fold_size] for i in range(0, len(dataset), fold_size)]
+
+    fold_size = len(dataset) // k
+    folds = []
+    for i in range(0, len(dataset), fold_size):
+        folds.append(dataset[i:i + fold_size])
 
     accuracies = []
     for i in range(k):
-        train = [item for sublist in (folds[:i] + folds[i + 1:]) for item in sublist]
-        test = folds[i]
+        train = []
+        test = []
+        for j in range(k):
+            if i == j:
+                test = folds[j]
+            else:
+                train += folds[j]
 
         tree = treepredict.buildtree(train, scoref=scoref, beta=beta)
         accuracy = get_accuracy(tree, test)
@@ -56,7 +66,7 @@ def cross_validation(dataset, k, agg, seed, scoref, beta, threshold):
     return agg(accuracies)
 
 
-def find_best_threshold(dataset, thresholds, k, scoref, seed):
+def find_best_threshold(dataset, thresholds, k, scoref, seed) -> (float, float):
     train, test = train_test_split(dataset, test_size=0.2, seed=seed)
     best_threshold = None
     best_accuracy = 0.0
@@ -79,7 +89,7 @@ def find_best_threshold(dataset, thresholds, k, scoref, seed):
     return best_threshold, best_accuracy
 
 
-def test_find_best_threshold(filename):
+def test_find_best_threshold(filename) -> None:
     headers, data = treepredict.read(filename)
     best_threshold, best_accuracy = find_best_threshold(data, config.evaluation_thresholds, k=5,
                                                         scoref=treepredict.entropy, seed=42)

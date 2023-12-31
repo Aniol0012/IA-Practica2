@@ -148,7 +148,7 @@ class DecisionNode:
         self.fb = fb
 
 
-def calculate_gain(part, column, value, current_score, score_function):
+def calculate_gain(part, column, value, current_score, score_function) -> Tuple[float, Tuple[Data, Data]]:
     set1, set2 = divideset(part, column, value)
     set1_len = len(set1)
     set2_len = len(set2)
@@ -161,7 +161,7 @@ def calculate_gain(part, column, value, current_score, score_function):
     return gain, (set1, set2)
 
 
-def get_best_split(part, score_function, current_score):
+def get_best_split(part, score_function, current_score) -> Tuple[float, Tuple[int, str], Tuple[Data, Data]]:
     best_gain = 0
     best_criteria = None
     best_sets = None
@@ -182,7 +182,7 @@ def get_best_split(part, score_function, current_score):
     return best_gain, best_criteria, best_sets
 
 
-def buildtree(part: Data, scoref=entropy, beta=0):
+def buildtree(part: Data, scoref=entropy, beta=0) -> DecisionNode:
     """
     t9: Define a new function buildtree. This is a recursive function
     that builds a decision tree using any of the impurity measures we
@@ -204,7 +204,7 @@ def buildtree(part: Data, scoref=entropy, beta=0):
         return DecisionNode(results=unique_counts(part))
 
 
-def iterative_buildtree(part: Data, scoref=entropy, beta=0):
+def iterative_buildtree(part: Data, scoref=entropy, beta=0) -> DecisionNode:
     """
     t10: Define the iterative version of the function buildtree
     """
@@ -243,21 +243,20 @@ def iterative_buildtree(part: Data, scoref=entropy, beta=0):
 def classify(tree, values):
     if tree.results is not None:
         return tree.results
-    else:
-        # TODO: check this else
-        v = values[tree.col]
-        branch = None
-        if isinstance(v, (int, float)):
-            if v >= tree.value:
-                branch = tree.tb
-            else:
-                branch = tree.fb
+
+    v = values[tree.col]
+    branch = None
+    if isinstance(v, (int, float)):
+        if v >= tree.value:
+            branch = tree.tb
         else:
-            if v == tree.value:
-                branch = tree.tb
-            else:
-                branch = tree.fb
-        return classify(branch, values)
+            branch = tree.fb
+    else:
+        if v == tree.value:
+            branch = tree.tb
+        else:
+            branch = tree.fb
+    return classify(branch, values)
 
 
 def print_tree(tree, headers=None, indent=""):
@@ -323,7 +322,7 @@ def main():
     test_buildtree(config.FILE2)  # iris.csv
 
 
-def test_buildtree(filename, recursive=True, iterative=True):
+def test_buildtree(filename, recursive=True, iterative=True) -> None:
     config.print_line(filename, 80)
     headers, data = read(filename)
 

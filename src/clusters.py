@@ -116,16 +116,16 @@ def printclust(clust: BiCluster, labels=None, n=0):
         printclust(clust.right, labels=labels, n=n + 1)
 
 
-def distance_for_different_k(rows, k_range, distance=euclidean_squared, executions=10):
+def distance_for_each_k(rows, k_range, distance=euclidean_squared, executions=10):
     distances = []
     for k in k_range:
-        _, total_distance = kcluster(rows, distance, k, executions)
-        distances.append(total_distance)
+        _, best_distance = kcluster(rows, distance, k, executions)
+        distances.append(best_distance)
     return distances
 
 
 # ......... K-MEANS ..........
-def kcluster(rows, distance=euclidean_squared, k=4, executions=10):
+def kcluster(rows, distance=euclidean_squared, k=4, executions=10) -> Tuple[List, float]:
     ranges = []
     for i in range(len(rows[0])):
         col_values = []
@@ -160,7 +160,7 @@ def kcluster(rows, distance=euclidean_squared, k=4, executions=10):
     return best_centroids, lowest_distance
 
 
-def fill_centroids(k, ranges):
+def fill_centroids(k, ranges) -> List:
     centroids = []
     for i in range(k):
         centroid = []
@@ -170,7 +170,7 @@ def fill_centroids(k, ranges):
     return centroids
 
 
-def group_rows(rows, centroids, distance):
+def group_rows(rows, centroids, distance) -> List:
     """
     This function groups rows into k clusters
     """
@@ -191,7 +191,7 @@ def group_rows(rows, centroids, distance):
     return best_matches
 
 
-def update_centroid(rows, best_matches, k):
+def update_centroid(rows, best_matches, k) -> List:
     new_centroids = []
     for i in range(k):
         # Make sure the list of best_matches indexes has elements
@@ -210,7 +210,7 @@ def update_centroid(rows, best_matches, k):
     return new_centroids
 
 
-def get_total_distance(rows, best_matches, centroids, distance):
+def get_total_distance(rows, best_matches, centroids, distance) -> float:
     total_distance = 0
     for i in range(len(centroids)):
         for row_id in best_matches[i]:
@@ -224,11 +224,11 @@ def main():
     test_clustering(config.FILE4)  # blogdata_full.txt
 
 
-def test_clustering(filename):
+def test_clustering(filename) -> None:
     row_names, headers, data = readfile(filename)
 
     k_range = range(2, 10)
-    distances = distance_for_different_k(data, k_range)
+    distances = distance_for_each_k(data, k_range)
 
     config.print_line(f"Clustering of {filename} file")
     print("Total distances for different k values:")
