@@ -10,7 +10,10 @@ evaluation_thresholds = [0.001, 0.01, 0.1, 0.2, 0.5, 1.0]
 FILE3 = "blogdata.txt"
 FILE4 = "blogdata_full.txt"
 
+SHOW_PLOTS = True
 
+
+##### general config #####
 def print_line(header="", length=60):
     print("-" * (length // 2), end="")
     print(f" {header} ", end="")

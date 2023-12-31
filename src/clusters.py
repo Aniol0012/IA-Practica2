@@ -235,7 +235,8 @@ def test_clustering(filename):
     for k, dist in zip(k_range, distances):
         print(f"k = {k}: Total distance = {dist}")
 
-    print_plot(k_range, distances)
+    if config.SHOW_PLOTS:
+        print_plot(k_range, distances)
 
 
 def print_plot(k_range, distances):
