@@ -122,15 +122,15 @@ def main():
 
     distances = distance_for_different_k(data, k_range)
 
-    print("Distancias Totales para Diferentes Valores de k:")
+    print("Total distances for different k values:")
     for k, dist in zip(k_range, distances):
-        print(f"k = {k}: Distancia Total = {dist}")
+        print(f"k = {k}: Total distance = {dist}")
 
-    # Graficar el método del codo
+    # Plot the elbow method
     plt.plot(k_range, distances, '-o')
-    plt.xlabel('Número de Clusters (k)')
-    plt.ylabel('Distancia Total')
-    plt.title('Método del Codo para Determinar k')
+    plt.xlabel('Number of clusters (k)')
+    plt.ylabel('Total distance')
+    plt.title('Elbow Method For Optimal k')
     plt.show()
 
 
