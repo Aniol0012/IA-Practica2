@@ -114,6 +114,6 @@ def printclust(clust: BiCluster, labels=None, n=0):
 
 
 # ......... K-MEANS ..........
-def kcluster(rows, distance, k=4):
-    # TODO
+def kcluster(rows, distance, k=4, executions=10):
+
     pass
