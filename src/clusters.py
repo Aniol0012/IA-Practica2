@@ -3,6 +3,8 @@ from math import sqrt
 import random
 import matplotlib.pyplot as plt
 
+import config
+
 
 def readfile(filename: str) -> Tuple[List, List, List]:
     headers = None
@@ -218,8 +220,8 @@ def get_total_distance(rows, best_matches, centroids, distance):
 
 # ...........MAIN.............
 def main():
-    test_clustering("blogdata.txt")
-    test_clustering("blogdata_full.txt")
+    test_clustering(config.FILE3)  # blogdata.txt
+    test_clustering(config.FILE4)  # blogdata_full.txt
 
 
 def test_clustering(filename):

@@ -3,6 +3,7 @@ import sys
 import collections
 from math import log2
 from typing import List, Tuple
+import config
 
 # Used for typing
 Data = List[List]
@@ -310,8 +311,7 @@ def main():
     try:
         filename = sys.argv[1]
     except IndexError:
-        # filename = "decision_tree_example.txt"
-        filename = "iris.csv"
+        filename = config.FILE1
 
     # header, data = read(filename)
     # print_data(header, data)
@@ -326,15 +326,22 @@ def main():
     # print(entropy([]))
     # print(entropy([data[0]]))
 
+    test_buildtree(config.FILE1)  # decision_tree_example.txt
+    test_buildtree(config.FILE2)  # iris.csv
+
+
+def test_buildtree(filename, recursive=True, iterative=True):
     headers, data = read(filename)
 
-    print_line("Recursive build tree")
-    tree = buildtree(data)
-    print_tree(tree, headers)
+    if recursive:
+        print_line("Recursive build tree")
+        tree = buildtree(data)
+        print_tree(tree, headers)
 
-    print_line("Iterative build tree")
-    tree = iterative_buildtree(data)
-    print_tree(tree)
+    if iterative:
+        print_line("Iterative build tree")
+        tree = iterative_buildtree(data)
+        print_tree(tree)
 
 
 if __name__ == "__main__":

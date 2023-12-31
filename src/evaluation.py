@@ -1,9 +1,8 @@
 import random
 from typing import Union, List
-import treepredict
 
-FILE1 = "decision_tree_example.txt"
-FILE2 = "iris.csv"
+import config
+import treepredict
 
 ROUND_DIGITS = 3
 
@@ -90,8 +89,8 @@ def test_find_best_threshold(filename):
 
 
 if __name__ == "__main__":
-    treepredict.print_line(FILE1)
-    test_find_best_threshold(FILE1)
+    treepredict.print_line(config.FILE1)  # decision_tree_example.txt
+    test_find_best_threshold(config.FILE1)
 
-    treepredict.print_line(FILE2)
-    test_find_best_threshold(FILE2)
+    treepredict.print_line(config.FILE2)  # iris.csv
+    test_find_best_threshold(config.FILE2)
