@@ -63,6 +63,7 @@ def cross_validation(dataset, k, agg, seed, scoref, beta, threshold):
         classifier = agg(train_set, scoref, beta, threshold)
         for row in test_set:
             row[-1] = classifier(row)
+        # TODO: change this for loop
         actual = [row[-1] for row in fold]
         predicted = [row[-1] for row in test_set]
         accuracy = get_accuracy(actual, predicted)

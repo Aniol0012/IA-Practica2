@@ -114,26 +114,6 @@ def printclust(clust: BiCluster, labels=None, n=0):
         printclust(clust.right, labels=labels, n=n + 1)
 
 
-def main():
-    # row_names, headers, data = readfile("blogdata.txt")
-    row_names, headers, data = readfile("blogdata_full.txt")
-
-    k_range = range(2, 10)
-
-    distances = distance_for_different_k(data, k_range)
-
-    print("Total distances for different k values:")
-    for k, dist in zip(k_range, distances):
-        print(f"k = {k}: Total distance = {dist}")
-
-    # Plot the elbow method
-    plt.plot(k_range, distances, '-o')
-    plt.xlabel('Number of clusters (k)')
-    plt.ylabel('Total distance')
-    plt.title('Elbow Method For Optimal k')
-    plt.show()
-
-
 def distance_for_different_k(rows, k_range, distance=euclidean_squared, executions=10):
     distances = []
     for k in k_range:
@@ -216,15 +196,15 @@ def update_centroid(rows, best_matches, k):
         if not best_matches or i >= len(best_matches) or len(best_matches[i]) == 0:
             continue
 
-        avgs = [0.0] * len(rows[0])
+        averages = [0.0] * len(rows[0])
         for row_id in best_matches[i]:
             for m in range(len(rows[0])):
-                avgs[m] += rows[row_id][m]
+                averages[m] += rows[row_id][m]
 
         # Calculate the average for each column
-        # TODO: change this for loop
-        avgs = [avg / len(best_matches[i]) for avg in avgs]
-        new_centroids.append(avgs)
+        for j in range(len(averages)):
+            averages[j] = averages[j] / len(best_matches[i])
+        new_centroids.append(averages)
     return new_centroids
 
 
@@ -234,6 +214,27 @@ def get_total_distance(rows, best_matches, centroids, distance):
         for row_id in best_matches[i]:
             total_distance += distance(rows[row_id], centroids[i])
     return total_distance
+
+
+# ...........MAIN.............
+def main():
+    # row_names, headers, data = readfile("blogdata.txt")
+    row_names, headers, data = readfile("blogdata_full.txt")
+
+    k_range = range(2, 10)
+
+    distances = distance_for_different_k(data, k_range)
+
+    print("Total distances for different k values:")
+    for k, dist in zip(k_range, distances):
+        print(f"k = {k}: Total distance = {dist}")
+
+    # Plot the elbow method
+    plt.plot(k_range, distances, '-o')
+    plt.xlabel('Number of clusters (k)')
+    plt.ylabel('Total distance')
+    plt.title('Elbow Method For Optimal k')
+    plt.show()
 
 
 if __name__ == '__main__':
