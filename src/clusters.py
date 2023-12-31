@@ -114,6 +114,68 @@ def printclust(clust: BiCluster, labels=None, n=0):
 
 
 # ......... K-MEANS ..........
-def kcluster(rows, distance, k=4, executions=10):
+def kcluster(rows, distance=euclidean_squared, k=4, executions=10):
+    ranges = []
+    for i in range(len(rows[0])):
+        col_values = []
+        for row in rows:
+            col_values.append(row[i])
 
-    pass
+        min_value = min(col_values)
+        max_value = max(col_values)
+        ranges.append((min_value, max_value))
+
+    lowest_distance = float('inf')
+    best_centroids = None
+    best_matches = None
+
+    for _ in range(executions):
+        # Start with k randomly placed centroids
+        centroids = []
+        for j in range(k):
+            centroid = []
+            for i in range(len(rows[0])):
+                centroid.append(random.uniform(ranges[i][0], ranges[i][1]))
+            centroids.append(centroid)
+
+        last_matches = None
+        for t in range(100):
+            best_matches = [[] for _ in range(k)]
+
+            # Find which centroid is the closest for each row
+            for j in range(len(rows)):
+                row = rows[j]
+                best_match = 0
+                for i in range(k):
+                    d = distance(centroids[i], row)
+                    if d < distance(centroids[best_match], row):
+                        best_match = i
+                best_matches[best_match].append(j)
+
+            if best_matches == last_matches:
+                break
+            last_matches = best_matches
+
+            # Move the centroids to the average of their members
+            for i in range(k):
+                if len(best_matches[i]) > 0:
+                    avgs = [0.0] * len(rows[0])
+                    for row_id in best_matches[i]:
+                        for m in range(len(rows[0])):
+                            avgs[m] += rows[row_id][m]
+                    for j in range(len(avgs)):
+                        avgs[j] /= len(best_matches[i])
+                    centroids[i] = avgs
+
+        # Calculate the total distance from all the points to their respective centroids
+        total_distance = 0
+        for i in range(k):
+            for row_id in best_matches[i]:
+                total_distance += distance(rows[row_id], centroids[i])
+
+        if total_distance < lowest_distance:
+            lowest_distance = total_distance
+            best_centroids = centroids
+            best_matches = best_matches
+
+    return best_centroids, best_matches
