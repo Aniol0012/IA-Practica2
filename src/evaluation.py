@@ -1,5 +1,6 @@
 import random
 from typing import Union, List
+import treepredict
 
 
 def train_test_split(dataset, test_size: Union[float, int], seed=None):
@@ -22,12 +23,13 @@ def train_test_split(dataset, test_size: Union[float, int], seed=None):
     return train, test
 
 
-def get_accuracy(classifier, dataset):
-    correct_parameter = 0
+def get_accuracy(tree, dataset):
+    correct_count = 0
     for row in dataset:
-        if classifier(row) == row[-1]:
-            correct_parameter += 1
-    return correct_parameter / len(dataset)
+        prediction = list(treepredict.classify(tree, row[:-1]).keys())[0]
+        if prediction == row[-1]:
+            correct_count += 1
+    return correct_count / len(dataset)
 
 
 def mean(values: List[float]):
@@ -35,37 +37,51 @@ def mean(values: List[float]):
 
 
 def cross_validation(dataset, k, agg, seed, scoref, beta, threshold):
-    if seed:
-        random.seed(seed)
-
-    # TODO: check if this is correct
-    folds = list()
-    dataset_copy = list(dataset)
+    random.seed(seed)
+    random.shuffle(dataset)
     fold_size = int(len(dataset) / k)
-    for _ in range(k):
-        fold = list()
-        while len(fold) < fold_size:
-            index = random.randrange(len(dataset_copy))
-            fold.append(dataset_copy.pop(index))
-        folds.append(fold)
+    folds = [dataset[i:i + fold_size] for i in range(0, len(dataset), fold_size)]
 
-    scores = list()
-    for fold in folds:
-        train_set = list(folds)
-        train_set.remove(fold)
-        train_set = sum(train_set, [])
-        test_set = list()
-        for row in fold:
-            row_copy = list(row)
-            test_set.append(row_copy)
-            row_copy[-1] = None
+    accuracies = []
+    for i in range(k):
+        train = [item for sublist in (folds[:i] + folds[i + 1:]) for item in sublist]
+        test = folds[i]
 
-        classifier = agg(train_set, scoref, beta, threshold)
-        for row in test_set:
-            row[-1] = classifier(row)
-        # TODO: change this for loop
-        actual = [row[-1] for row in fold]
-        predicted = [row[-1] for row in test_set]
-        accuracy = get_accuracy(actual, predicted)
-        scores.append(accuracy)
-    return mean(scores)
+        tree = treepredict.buildtree(train, scoref=scoref, beta=beta)
+        accuracy = get_accuracy(tree, test)
+        accuracies.append(accuracy)
+
+    return agg(accuracies)
+
+
+def find_best_threshold(dataset, thresholds, k, scoref, seed):
+    # Assume dataset is already loaded and is a list of lists, with the class label as the last item in each sublist
+    train, test = train_test_split(dataset, test_size=0.2, seed=seed)
+    best_threshold = None
+    best_accuracy = 0.0  # Start with zero accuracy
+
+    for threshold in thresholds:
+        accuracy = cross_validation(train, k=k, agg=mean, seed=seed, scoref=scoref, beta=threshold, threshold=threshold)
+        print(f"Threshold: {threshold}, Cross-Validation Accuracy: {accuracy}")
+        if accuracy > best_accuracy:
+            best_accuracy = accuracy
+            best_threshold = threshold
+
+    if best_threshold is not None:
+        print(f"Best threshold: {best_threshold} with accuracy: {best_accuracy}")
+        # Train a new tree with the best threshold and the entire training set
+        tree = treepredict.buildtree(train, scoref=scoref, beta=best_threshold)
+        # Test this tree on the test dataset
+        test_accuracy = get_accuracy(tree, test)
+        print(f"Test set accuracy with best threshold: {test_accuracy}")
+    else:
+        print("No valid threshold found with the current settings.")
+
+    return best_threshold
+
+
+if __name__ == "__main__":
+    filename = "iris.csv"
+    headers, data = treepredict.read(filename)
+    thresholds = [0.01, 0.05, 0.1, 0.2]  # Example threshold values
+    best_threshold = find_best_threshold(data, thresholds, k=5, scoref=treepredict.entropy, seed=42)
