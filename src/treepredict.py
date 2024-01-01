@@ -241,13 +241,11 @@ def iterative_buildtree(part: Data, scoref=entropy, beta=0) -> DecisionNode:
 
 
 def prune(tree: DecisionNode, threshold: float) -> None:
-    if not tree:
+    if not tree or is_leaf(tree):
         return
 
-    if not is_leaf(tree.tb):
-        prune(tree.tb, threshold)
-    if not is_leaf(tree.fb):
-        prune(tree.fb, threshold)
+    prune(tree.tb, threshold)
+    prune(tree.fb, threshold)
 
     if is_leaf(tree.tb) and is_leaf(tree.fb) and can_prune(tree, threshold):
         tree.tb, tree.fb = None, None
@@ -261,8 +259,8 @@ def is_leaf(node: DecisionNode) -> bool:
 def get_prune_results(node: DecisionNode) -> List:
     results_list = []
     if node is not None and node.results is not None:
-        for value, count in node.results.items():
-            results_list.extend([[value]] * count)
+        for v, c in node.results.items():
+            results_list.extend([[v]] * c)
     return results_list
 
 
