@@ -148,7 +148,7 @@ class DecisionNode:
         self.fb = fb
 
 
-def calculate_gain(part, column, value, current_score, score_function) -> Tuple[float, Tuple[Data, Data]]:
+def calculate_gain(part, column, value, current_score, score_function):
     set1, set2 = divideset(part, column, value)
     set1_len = len(set1)
     set2_len = len(set2)
