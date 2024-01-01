@@ -5,8 +5,7 @@ FILE1 = "decision_tree_example.txt"
 EXECUTE_FILE2 = True
 FILE2 = "iris.csv"
 
-# Beta value for pruning, if the increase of entropy is less than beta, the node will be pruned
-beta = 0.1
+threshold = 0.01
 
 ############# evaluation #############
 ROUND_DIGITS = 3
