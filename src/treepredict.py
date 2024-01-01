@@ -244,22 +244,36 @@ def prune(tree: DecisionNode, scoref=entropy, beta=0) -> None:
     if not tree:
         return
 
-    if tree.tb and tree.tb.results is None:
+    if tree.tb and not is_leaf(tree.tb):
         prune(tree.tb, scoref, beta)
-    if tree.fb and tree.fb.results is None:
+    if tree.fb and not is_leaf(tree.fb):
         prune(tree.fb, scoref, beta)
 
-    if tree.tb and tree.fb and tree.tb.results is not None and tree.fb.results is not None:
-        tb, fb = [], []
-        for v, c in tree.tb.results.items():
-            tb += [[v]] * c
-        for v, c in tree.fb.results.items():
-            fb += [[v]] * c
+    if is_leaf(tree.tb) and is_leaf(tree.fb):
+        tb_results, fb_results = get_prune_results(tree.tb), get_prune_results(tree.fb)
+        combined_results = tb_results + fb_results
 
-        p = len(tb) / (len(tb) + len(fb))
-        if scoref(tb + fb) - p * scoref(tb) - (1 - p) * scoref(fb) < beta:
+        total = len(combined_results)
+        tb_proportion = len(tb_results) / total
+
+        score = scoref(combined_results) - tb_proportion * scoref(tb_results) - (1 - tb_proportion) * scoref(
+            fb_results)
+
+        if score < beta:
             tree.tb, tree.fb = None, None
-            tree.results = unique_counts(tb + fb)
+            tree.results = unique_counts(combined_results)
+
+
+def is_leaf(node: DecisionNode) -> bool:
+    return node.results is not None
+
+
+def get_prune_results(node: DecisionNode) -> List:
+    results_list = []
+    for value, count in node.results.items():
+        for _ in range(count):
+            results_list.append([value])
+    return results_list
 
 
 def classify(tree, values):
