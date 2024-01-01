@@ -244,19 +244,14 @@ def prune(tree: DecisionNode, threshold: float) -> None:
     if not tree:
         return
 
-    if is_leaf(tree.tb) and is_leaf(tree.fb):
-        if can_prune(tree, threshold):
-            tree.tb, tree.fb = None, None
-            tree.results = unique_counts(get_prune_results(tree.tb) + get_prune_results(tree.fb))
-    else:
-        if tree.tb:
-            prune(tree.tb, threshold)
-        if tree.fb:
-            prune(tree.fb, threshold)
-        if is_leaf(tree.tb) and is_leaf(tree.fb):
-            if can_prune(tree, threshold):
-                tree.tb, tree.fb = None, None
-                tree.results = unique_counts(get_prune_results(tree.tb) + get_prune_results(tree.fb))
+    if not is_leaf(tree.tb):
+        prune(tree.tb, threshold)
+    if not is_leaf(tree.fb):
+        prune(tree.fb, threshold)
+
+    if is_leaf(tree.tb) and is_leaf(tree.fb) and can_prune(tree, threshold):
+        tree.tb, tree.fb = None, None
+        tree.results = unique_counts(get_prune_results(tree.tb) + get_prune_results(tree.fb))
 
 
 def is_leaf(node: DecisionNode) -> bool:
