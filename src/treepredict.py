@@ -240,6 +240,29 @@ def iterative_buildtree(part: Data, scoref=entropy, beta=0) -> DecisionNode:
     return root
 
 
+def prune(tree: DecisionNode, scoref=entropy, beta=0) -> None:
+    if not tree:
+        return
+
+    if tree.tb.results is None:
+        prune(tree.tb, scoref, beta)
+    if tree.fb.results is None:
+        prune(tree.fb, scoref, beta)
+
+    if tree.tb.results is not None and tree.fb.results is not None:
+        tb, fb = [], []
+        for v, c in tree.tb.results.items():
+            tb += [[v]] * c
+        for v, c in tree.fb.results.items():
+            fb += [[v]] * c
+
+        p = len(tb) / (len(tb) + len(fb))
+        delta = scoref(tb + fb) - p * scoref(tb) - (1 - p) * scoref(fb)
+        if delta < beta:
+            tree.tb, tree.fb = None, None
+            tree.results = unique_counts(tb + fb)
+
+
 def classify(tree, values):
     if tree.results is not None:
         return tree.results
@@ -332,11 +355,13 @@ def test_buildtree(filename, recursive=True, iterative=True) -> None:
     if recursive:
         config.print_line("Recursive build tree")
         tree = buildtree(data)
+        prune(tree, scoref=entropy, beta=config.beta)
         print_tree(tree, headers)
 
     if iterative:
         config.print_line("Iterative build tree")
         tree = iterative_buildtree(data)
+        prune(tree, scoref=entropy, beta=config.beta)
         print_tree(tree)
 
 
