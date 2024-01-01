@@ -23,7 +23,7 @@ iterations = 10
 
 k_for_clusters = 4
 
-# Range of values for each centroid
+# Range of values for each centroid, remember that range is [start, end)
 k_range = range(2, 10)
 
 EXECUTE_FILE3 = False
