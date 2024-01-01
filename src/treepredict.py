@@ -244,12 +244,12 @@ def prune(tree: DecisionNode, scoref=entropy, beta=0) -> None:
     if not tree:
         return
 
-    if tree.tb.results is None:
+    if tree.tb and tree.tb.results is None:
         prune(tree.tb, scoref, beta)
-    if tree.fb.results is None:
+    if tree.fb and tree.fb.results is None:
         prune(tree.fb, scoref, beta)
 
-    if tree.tb.results is not None and tree.fb.results is not None:
+    if tree.tb and tree.fb and tree.tb.results is not None and tree.fb.results is not None:
         tb, fb = [], []
         for v, c in tree.tb.results.items():
             tb += [[v]] * c
@@ -257,8 +257,7 @@ def prune(tree: DecisionNode, scoref=entropy, beta=0) -> None:
             fb += [[v]] * c
 
         p = len(tb) / (len(tb) + len(fb))
-        delta = scoref(tb + fb) - p * scoref(tb) - (1 - p) * scoref(fb)
-        if delta < beta:
+        if scoref(tb + fb) - p * scoref(tb) - (1 - p) * scoref(fb) < beta:
             tree.tb, tree.fb = None, None
             tree.results = unique_counts(tb + fb)
 

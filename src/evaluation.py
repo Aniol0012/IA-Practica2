@@ -60,6 +60,7 @@ def cross_validation(dataset, k, agg, seed, scoref, beta, threshold) -> float:
                 train += folds[j]
 
         tree = treepredict.buildtree(train, scoref=scoref, beta=beta)
+        treepredict.prune(tree, scoref, threshold)
         accuracy = get_accuracy(tree, test)
         accuracies.append(accuracy)
 
