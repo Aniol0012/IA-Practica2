@@ -45,22 +45,17 @@ def cross_validation(dataset, k, agg, seed, scoref, beta, threshold) -> float:
     random.shuffle(dataset)
 
     fold_size = len(dataset) // k
-    folds = []
-    for i in range(0, len(dataset), fold_size):
-        folds.append(dataset[i:i + fold_size])
-
     accuracies = []
+
     for i in range(k):
-        train = []
-        test = []
-        for j in range(k):
-            if i == j:
-                test = folds[j]
-            else:
-                train += folds[j]
+        start_test = i * fold_size
+        end_test = start_test + fold_size
+        test = dataset[start_test:end_test]
+        train = dataset[:start_test] + dataset[end_test:]
 
         tree = treepredict.buildtree(train, scoref=scoref, beta=beta)
         treepredict.prune(tree, scoref, threshold)
+
         accuracy = get_accuracy(tree, test)
         accuracies.append(accuracy)
 
