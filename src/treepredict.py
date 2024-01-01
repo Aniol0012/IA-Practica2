@@ -240,6 +240,39 @@ def iterative_buildtree(part: Data, scoref=entropy, beta=0) -> DecisionNode:
     return root
 
 
+def prune(tree: DecisionNode, threshold: float) -> None:
+    if not tree or is_leaf(tree):
+        return
+
+    prune(tree.tb, threshold)
+    prune(tree.fb, threshold)
+
+    if is_leaf(tree.tb) and is_leaf(tree.fb) and can_prune(tree, threshold):
+        tree.tb, tree.fb = None, None
+        tree.results = unique_counts(get_prune_results(tree.tb) + get_prune_results(tree.fb))
+
+
+def is_leaf(node: DecisionNode) -> bool:
+    return node is not None and node.results is not None
+
+
+def get_prune_results(node: DecisionNode) -> List:
+    results_list = []
+    if node is not None and node.results is not None:
+        for v, c in node.results.items():
+            results_list.extend([[v]] * c)
+    return results_list
+
+
+def can_prune(tree: DecisionNode, threshold: float) -> bool:
+    tb_results, fb_results = get_prune_results(tree.tb), get_prune_results(tree.fb)
+    tb_and_fb_results = tb_results + fb_results
+    tb_proportion = len(tb_results) / len(tb_and_fb_results)
+
+    return entropy(tb_and_fb_results) - tb_proportion * entropy(tb_results) - (1 - tb_proportion) * entropy(
+        fb_results) < threshold
+
+
 def classify(tree, values):
     if tree.results is not None:
         return tree.results
@@ -332,11 +365,13 @@ def test_buildtree(filename, recursive=True, iterative=True) -> None:
     if recursive:
         config.print_line("Recursive build tree")
         tree = buildtree(data)
+        prune(tree, config.threshold)
         print_tree(tree, headers)
 
     if iterative:
         config.print_line("Iterative build tree")
         tree = iterative_buildtree(data)
+        prune(tree, config.threshold)
         print_tree(tree)
 
 
