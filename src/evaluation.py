@@ -26,14 +26,14 @@ def train_test_split(dataset, test_size: Union[float, int], seed=None) -> (List,
 
 
 def get_accuracy(tree, dataset):
-    correct_count = 0
+    correct_counter = 0
     for row in dataset:
         result = treepredict.classify(tree, row[:-1])
         if result:
             result_value = list(result.keys())[0]
             if result_value == row[-1]:
-                correct_count += 1
-    return correct_count / len(dataset)
+                correct_counter += 1
+    return correct_counter / len(dataset)
 
 
 def mean(values: List[float]):
@@ -79,8 +79,9 @@ def find_best_threshold(dataset, thresholds, k, scoref, seed) -> (float, float):
         return None, None
 
     tree = treepredict.buildtree(train, scoref=scoref, beta=best_threshold)
+    treepredict.prune(tree, best_threshold)
     test_accuracy = get_accuracy(tree, test)
-    print(f"Test set accuracy with best threshold: {round(test_accuracy, config.ROUND_DIGITS)}")
+    print(f"get_accuracy method gave an accuracy of: {round(test_accuracy, config.ROUND_DIGITS)}")
 
     return best_threshold, best_accuracy
 
@@ -90,7 +91,8 @@ def test_find_best_threshold(filename) -> None:
     headers, data = treepredict.read(filename)
     best_threshold, best_accuracy = find_best_threshold(data, config.evaluation_thresholds, k=config.k,
                                                         scoref=treepredict.entropy, seed=config.seed)
-    print(f"RESULT -> Best threshold: {best_threshold} with an accuracy of {round(best_accuracy, config.ROUND_DIGITS)}")
+    print(
+        f"RESULT -> Best threshold: {best_threshold} with a CV accuracy of {round(best_accuracy, config.ROUND_DIGITS)}")
 
 
 if __name__ == "__main__":
