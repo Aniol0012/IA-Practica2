@@ -26,8 +26,6 @@ k_range = range(2, 10)
 FILE3 = "blogdata.txt"
 FILE4 = "blogdata_full.txt"
 
-SHOW_PLOTS = True
-
 
 ############# general config #############
 def print_line(header="", length=60):

@@ -235,17 +235,6 @@ def test_clustering(filename) -> None:
     for k, dist in zip(config.k_range, distances):
         print(f"k = {k}: Total distance = {dist}")
 
-    if config.SHOW_PLOTS:
-        print_plot(config.k_range, distances)
-
-
-def print_plot(k_range, distances):
-    plt.plot(k_range, distances, '-o')
-    plt.xlabel('Number of clusters (k)')
-    plt.ylabel('Total distance')
-    plt.title('Elbow Method For Optimal k')
-    plt.show()
-
 
 if __name__ == '__main__':
     main()
