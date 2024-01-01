@@ -116,15 +116,6 @@ def printclust(clust: BiCluster, labels=None, n=0):
         printclust(clust.right, labels=labels, n=n + 1)
 
 
-def distance_for_each_k(rows, k_range):
-    distance = euclidean_squared
-    distances = []
-    for k in k_range:
-        _, best_distance = kcluster(rows, distance, k)
-        distances.append(best_distance)
-    return distances
-
-
 # ......... K-MEANS ..........
 def kcluster(rows, distance, k=config.k_for_clusters) -> Tuple[List, float]:
     ranges = []
@@ -225,12 +216,20 @@ def main():
 def test_clustering(filename) -> None:
     row_names, headers, data = readfile(filename)
 
-    distances = distance_for_each_k(data, config.k_range)
+    distances = get_distances_from_elbow_method(data, config.k_range)
 
     config.print_line(f"Clustering of {filename} file")
     print("Total distances for different k values:")
     for k, dist in zip(config.k_range, distances):
-        print(f"k = {k}: Total distance = {dist}")
+        print(f"k = {k}: Total distance = {dist:.{config.ROUND_DIGITS_DISTANCES_CLUSTERS}f}")
+
+
+def get_distances_from_elbow_method(data, k_range) -> List:
+    distances = []
+    for k in k_range:
+        _, best_distance = kcluster(data, euclidean_squared, k)
+        distances.append(best_distance)
+    return distances
 
 
 if __name__ == '__main__':

@@ -19,8 +19,13 @@ k = 5
 seed = 50
 
 ############# clusters #############
+# Number of digits to round the distances output
+ROUND_DIGITS_DISTANCES_CLUSTERS = 8
+
+# Number of iterations for the k-means
 iterations = 10
 
+# Number of clusters to find
 k_for_clusters = 4
 
 # Range of values for each centroid, remember that range is [start, end)
