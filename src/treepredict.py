@@ -318,8 +318,11 @@ def main():
     # print(entropy([]))
     # print(entropy([data[0]]))
 
-    # test_buildtree(config.FILE1)  # decision_tree_example.txt
-    test_buildtree(config.FILE2)  # iris.csv
+    if config.EXECUTE_FILE1:
+        test_buildtree(config.FILE1)  # decision_tree_example.txt
+
+    if config.EXECUTE_FILE2:
+        test_buildtree(config.FILE2)  # iris.csv
 
 
 def test_buildtree(filename, recursive=True, iterative=True) -> None:

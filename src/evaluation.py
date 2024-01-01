@@ -90,6 +90,7 @@ def find_best_threshold(dataset, thresholds, k, scoref, seed) -> (float, float):
 
 
 def test_find_best_threshold(filename) -> None:
+    config.print_line(f"Finding best threshold for {filename} file")
     headers, data = treepredict.read(filename)
     best_threshold, best_accuracy = find_best_threshold(data, config.evaluation_thresholds, k=config.k,
                                                         scoref=treepredict.entropy, seed=config.seed)
@@ -97,8 +98,8 @@ def test_find_best_threshold(filename) -> None:
 
 
 if __name__ == "__main__":
-    # config.print_line(config.FILE1)  # decision_tree_example.txt
-    # test_find_best_threshold(config.FILE1)
+    if config.EXECUTE_FILE1:
+        test_find_best_threshold(config.FILE1)  # decision_tree_example.txt
 
-    config.print_line(config.FILE2)  # iris.csv
-    test_find_best_threshold(config.FILE2)
+    if config.EXECUTE_FILE2:
+        test_find_best_threshold(config.FILE2)  # iris.csv

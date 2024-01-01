@@ -1,5 +1,8 @@
 ############# treepredict #############
+EXECUTE_FILE1 = False
 FILE1 = "decision_tree_example.txt"
+
+EXECUTE_FILE2 = True
 FILE2 = "iris.csv"
 
 ############# evaluation #############
@@ -20,10 +23,13 @@ iterations = 10
 
 k_for_clusters = 4
 
-# Range of the values of each centroid
+# Range of values for each centroid
 k_range = range(2, 10)
 
+EXECUTE_FILE3 = False
 FILE3 = "blogdata.txt"
+
+EXECUTE_FILE4 = True
 FILE4 = "blogdata_full.txt"
 
 

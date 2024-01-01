@@ -221,8 +221,10 @@ def get_total_distance(rows, best_matches, centroids, distance) -> float:
 
 # ...........MAIN.............
 def main():
-    test_clustering(config.FILE3)  # blogdata.txt
-    test_clustering(config.FILE4)  # blogdata_full.txt
+    if config.EXECUTE_FILE3:
+        test_clustering(config.FILE3)  # blogdata.txt
+    if config.EXECUTE_FILE4:
+        test_clustering(config.FILE4)  # blogdata_full.txt
 
 
 def test_clustering(filename) -> None:
