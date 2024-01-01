@@ -172,9 +172,6 @@ def fill_centroids(k, ranges) -> List:
 
 
 def group_rows(rows, centroids, distance) -> List:
-    """
-    This function groups rows into k clusters
-    """
     best_matches = []
     for _ in range(len(centroids)):
         best_matches.append([])
@@ -195,7 +192,6 @@ def group_rows(rows, centroids, distance) -> List:
 def update_centroid(rows, best_matches, k) -> List:
     new_centroids = []
     for i in range(k):
-        # Make sure the list of best_matches indexes has elements
         if not best_matches or i >= len(best_matches) or len(best_matches[i]) == 0:
             continue
 
@@ -204,7 +200,6 @@ def update_centroid(rows, best_matches, k) -> List:
             for m in range(len(rows[0])):
                 averages[m] += rows[row_id][m]
 
-        # Calculate the average for each column
         for j in range(len(averages)):
             averages[j] = averages[j] / len(best_matches[i])
         new_centroids.append(averages)
