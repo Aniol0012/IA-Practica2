@@ -81,7 +81,7 @@ def find_best_threshold(dataset, thresholds, k, scoref, seed) -> (float, float):
     tree = treepredict.buildtree(train, scoref=scoref, beta=best_threshold)
     treepredict.prune(tree, best_threshold)
     test_accuracy = get_accuracy(tree, test)
-    print(f"get_accuracy method gave an accuracy: {round(test_accuracy, config.ROUND_DIGITS)}")
+    print(f"Test method gave an accuracy: {round(test_accuracy, config.ROUND_DIGITS)}")
 
     return best_threshold, best_accuracy
 

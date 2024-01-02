@@ -28,7 +28,7 @@ ROUND_DIGITS_DISTANCES_CLUSTERS = 8
 iterations = 10
 
 # Number of clusters to find
-k_for_clusters = 4
+k_for_clusters = 2
 
 # Range of values for each centroid, remember that range is [start, end)
 k_range = range(2, 10)
