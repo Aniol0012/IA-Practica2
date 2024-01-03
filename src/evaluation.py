@@ -40,8 +40,7 @@ def mean(values: List[float]):
     return sum(values) / len(values)
 
 
-def cross_validation(dataset, k, agg, seed, scoref, beta, threshold) -> float:
-    random.seed(seed)
+def cross_validation(dataset, k, agg, scoref, beta, threshold) -> float:
     random.shuffle(dataset)
 
     fold_size = len(dataset) // k
@@ -68,7 +67,7 @@ def find_best_threshold(dataset, thresholds, k, scoref, seed) -> (float, float):
     best_accuracy = 0.0
 
     for threshold in thresholds:
-        accuracy = cross_validation(train, k=k, agg=mean, seed=seed, scoref=scoref, beta=threshold, threshold=threshold)
+        accuracy = cross_validation(train, k=k, agg=mean, scoref=scoref, beta=threshold, threshold=threshold)
         print(f"Threshold: {threshold} -> Cross-validation accuracy: {round(accuracy, config.ROUND_DIGITS)}")
         if accuracy > best_accuracy:
             best_accuracy = accuracy
