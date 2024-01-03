@@ -61,10 +61,14 @@ def cross_validation(dataset, k, agg, scoref, beta, threshold) -> float:
     return agg(accuracies)
 
 
-def find_best_threshold(dataset, thresholds, k, scoref, seed) -> (float, float):
-    train, test = train_test_split(dataset, test_size=config.test_size, seed=seed)
+def find_best_threshold(dataset) -> (float, float):
+    train, test = train_test_split(dataset, test_size=config.test_size, seed=config.seed)
     best_threshold = None
     best_accuracy = 0.0
+
+    thresholds = config.evaluation_thresholds
+    k = config.k
+    scoref = treepredict.entropy
 
     for threshold in thresholds:
         accuracy = cross_validation(train, k=k, agg=mean, scoref=scoref, beta=threshold, threshold=threshold)
@@ -88,8 +92,7 @@ def find_best_threshold(dataset, thresholds, k, scoref, seed) -> (float, float):
 def test_find_best_threshold(filename) -> None:
     config.print_line(f"Finding best threshold for {filename} file")
     headers, data = treepredict.read(filename)
-    best_threshold, best_accuracy = find_best_threshold(data, config.evaluation_thresholds, k=config.k,
-                                                        scoref=treepredict.entropy, seed=config.seed)
+    best_threshold, best_accuracy = find_best_threshold(data)
     print(f"RESULT -> Best threshold: {best_threshold} with a CV accuracy: {round(best_accuracy, config.ROUND_DIGITS)}")
 
 
