@@ -24,7 +24,7 @@ seed = 50
 # Number of digits to round the distances output
 ROUND_DIGITS_DISTANCES_CLUSTERS = 8
 
-# Number of iterations for the k-means
+# Number of iterations
 iterations = 10
 
 # Number of clusters to find

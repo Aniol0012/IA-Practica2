@@ -1,7 +1,6 @@
 from typing import Tuple, List
 from math import sqrt
 import random
-import matplotlib.pyplot as plt
 
 import config
 
