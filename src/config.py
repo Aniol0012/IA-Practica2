@@ -39,6 +39,8 @@ FILE3 = "blogdata.txt"
 EXECUTE_FILE4 = True
 FILE4 = "blogdata_full.txt"
 
+SHOW_PLOT = True
+
 
 ############# general config #############
 def print_line(header="", length=60):

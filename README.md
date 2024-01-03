@@ -17,15 +17,13 @@ Clone the repo:
 git clone https://github.com/Aniol0012/IA-Practica2.git
 ```
 
-<!--
 ## Requirements
 
-The requirements can be found in [requirements](requirements.txt) file. Use this command to install them all:
+This project uses matplotlib for plotting. To install it, run:
 
 ````shell
-pip install -r requirements.txt
+pip install matplotlib
 ````
--->
 
 ## Configuration and Usage
 
