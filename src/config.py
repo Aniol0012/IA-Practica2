@@ -31,7 +31,7 @@ iterations = 10
 k_for_clusters = 2
 
 # Range of values for each centroid, remember that range is [start, end)
-k_range = range(2, 10)
+k_range = range(1, 10)
 
 EXECUTE_FILE3 = False
 FILE3 = "blogdata.txt"

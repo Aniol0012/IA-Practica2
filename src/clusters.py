@@ -28,7 +28,7 @@ def euclidean(v1, v2):
     distance = 0
     for i in range(len(v1)):
         distance += (v1[i] - v2[i]) ** 2
-    return 1 / (1 + distance)
+    return 1 / (1 + sqrt(distance))
 
 
 def euclidean_squared(v1, v2):
@@ -140,7 +140,7 @@ def kcluster(rows, distance, k=config.k_for_clusters) -> Tuple[List, float]:
                 break
             last_matches = best_matches
 
-            centroids = update_centroid(rows, best_matches, k)
+            centroids = get_centroids(rows, best_matches, k)
 
         total_distance = get_total_distance(rows, best_matches, centroids, distance)
 
@@ -180,7 +180,7 @@ def group_rows(rows, centroids, distance) -> List:
     return best_matches
 
 
-def update_centroid(rows, best_matches, k) -> List:
+def get_centroids(rows, best_matches, k) -> List:
     new_centroids = []
     for i in range(k):
         if not best_matches or i >= len(best_matches) or len(best_matches[i]) == 0:
